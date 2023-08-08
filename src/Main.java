@@ -1,12 +1,11 @@
-import java.util.Scanner;
-
 public class Main {
     public static void main(String[] args) {
-        Calculate calc = new Calculate();
-        calc.calcTimeTotal ();
-        calc.MaxDropPressure ();
-        calc.calcPressureOfExit ();
-        calc.calcTimeBeforeSignalOfExit ();
+        Team team = new Team();
+        team.calculateTimeTotal();
+        team.calculateMaxDropPressure();
+        team.calculatePressureOfExit();
+        team.calculateTimeBeforeSignalOfExit();
+        team.calculateTimeOfExit();
 
     }
 }
