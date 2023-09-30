@@ -3,51 +3,31 @@ import java.time.format.DateTimeFormatter;
 import java.util.Scanner;
 
 public class Team {
-	final double flowAir = 40; // 40
-	final double coefficientEasyReserve = 2.5; // 2.5
-	final double coefficientHardReserve = 3; // 3
-	final double stableWorkPressure = 10; // 10
-	final double coefficientSqueeze = 1.1; // К сж
+	final double coefficientReserve = 3; // 3
+	double flowAir; // 45/2
 	double timeTotal;
 	double pressureOfExit;
 	double maxDropPressure;
-	double timeBeforeSignalOfExit;
+	double timeBeforeSignalOfReturn;
 	LocalTime timeOfExit;
+	LocalTime timeOfReturn;
 	double minPressureOfStart;
-	double numberTank;
-	boolean isHardModeFlag;
 	double capacityAirTank;
 	Scanner scanner = new Scanner (System.in);
-
 	LocalTime currentTime = LocalTime.now();
-	DateTimeFormatter formatter;
-	String formattedTime;
+	DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
 
-
-
-
-	public void calculateTimeTotal() {  // Т общ = ((Р min, вкл – Р уст. раб) • Vб • Nб) / (40 • К сж)
-		System.out.println ("Рmin,вкл: ");
-		minPressureOfStart = scanner.nextDouble (); // Р min, вкл
-		System.out.println ("Nб (1/2): ");
-		numberTank = scanner.nextDouble ();
-		System.out.print ("Vб (6,8/7): ");
-		capacityAirTank = scanner.nextDouble (); // Vб
-		timeTotal = Math.round (((minPressureOfStart - stableWorkPressure) * capacityAirTank * numberTank) / (flowAir * coefficientSqueeze));
-		System.out.println ("Тобщ = " + timeTotal);
+	public Team(double flowAir, double capacityAirTank) {
+		this.flowAir = flowAir;
+		this.capacityAirTank = capacityAirTank;
 	}
 
 
-	public void calculateMaxDropPressure() {
-		System.out.print ("Условия сложные? (true/false): ");
-		isHardModeFlag = scanner.nextBoolean ();
-		if (!isHardModeFlag) {
-			maxDropPressure = Math.ceil ((minPressureOfStart - stableWorkPressure) / coefficientEasyReserve);
-			System.out.println ("Рmax.пад. = " + maxDropPressure);
-		} else {
-			maxDropPressure = Math.ceil ((minPressureOfStart - stableWorkPressure) / coefficientHardReserve);
-			System.out.println ("Рmax.пад. = " + maxDropPressure);
-		}
+	public void calculateMaxDropPressure() { // Рmax.пад. = Р min. вкл / 3
+		System.out.println ("Рmin,вкл: ");
+		minPressureOfStart = scanner.nextDouble (); // Р min, вкл
+		maxDropPressure = Math.ceil (minPressureOfStart / coefficientReserve);
+		System.out.println ("Рmax.пад. = " + maxDropPressure);
 	}
 
 	public void calculatePressureOfExit() { // Рк.вых = Рmin.вкл. − Рmax.пад.
@@ -55,15 +35,25 @@ public class Team {
 		System.out.println ("Рк.вых. = " + pressureOfExit);
 	}
 
-	public void calculateTimeBeforeSignalOfExit() {  // Т = (Р max, пад • Vб) / (40 • К сж)
-		timeBeforeSignalOfExit = Math.round ((maxDropPressure * capacityAirTank * numberTank) / (flowAir * coefficientSqueeze));
-		System.out.println ("Тдо подачи сигнала = " + timeBeforeSignalOfExit);
+	public void calculateTimeBeforeSignalOfReturn() {  // Т = (Р max, пад • Vб) / 45 or 2
+		timeBeforeSignalOfReturn = Math.round ((maxDropPressure * capacityAirTank) / flowAir);
+		System.out.println ("Тдо подачи команды на возвращение = " + timeBeforeSignalOfReturn);
 	}
 
-	public void calculateTimeOfExit() {  // Твозвр = Твкл + Тобщ
-		timeOfExit = currentTime.plusMinutes((long) timeTotal);
-		formatter = DateTimeFormatter.ofPattern("HH:mm");
-		formattedTime = currentTime.format(formatter);
+	public void calculateTimeOfExit() {  // Твых = Твкл + Т
+		timeOfExit = currentTime.plusMinutes((long) timeBeforeSignalOfReturn);
+		String formattedTime = timeOfExit.format(formatter);
+		System.out.println ("Твых = " + formattedTime);
+	}
+
+	public void calculateTimeTotal() {  // Т общ = (Р min. вкл • Vб) / 45 or 2
+		timeTotal = Math.round ((minPressureOfStart * capacityAirTank) / flowAir);
+		System.out.println ("Тобщ = " + timeTotal);
+	}
+
+	public void calculateTimeOfReturn() {  // Твозвр = Твкл + Тобщ
+		timeOfReturn = currentTime.plusMinutes((long) timeTotal);
+		String formattedTime = timeOfReturn.format(formatter);
 		System.out.println ("Твозвр = " + formattedTime);
 	}
 }

@@ -1,11 +1,11 @@
 public class Main {
     public static void main(String[] args) {
-        Team team = new Team();
-        team.calculateTimeTotal();
+        Team team = new Team(45, 7);
         team.calculateMaxDropPressure();
         team.calculatePressureOfExit();
-        team.calculateTimeBeforeSignalOfExit();
+        team.calculateTimeBeforeSignalOfReturn();
         team.calculateTimeOfExit();
-
+        team.calculateTimeTotal();
+        team.calculateTimeOfReturn();
     }
 }
